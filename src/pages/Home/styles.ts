@@ -23,9 +23,12 @@ const styles = StyleSheet.create({
     justifyContent: 'space-evenly',
   },
   buttonsArea: {
-    marginTop: 5,
+    marginTop: 20,
     flexDirection: 'row',
     justifyContent: 'space-evenly',
+    borderTopWidth: 2,
+    borderTopColor: '#e64f4f',
+    paddingTop: 10,
   },
   descriptionFoodArea: {
     marginTop: 8,
@@ -38,7 +41,7 @@ const styles = StyleSheet.create({
     color: '#e64f4f',
   },
   resultArea: {
-    marginTop: 10,
+    marginVertical: 10,
     alignItems: 'center',
   },
   resultTitle: {
@@ -48,6 +51,12 @@ const styles = StyleSheet.create({
   resultText: {
     fontWeight: 'bold',
     fontSize: 25,
+  },
+  noFoodArea: {alignItems: 'center', marginTop: 20},
+  dialogTitle: {
+    textAlign: 'center',
+    color: '#fff',
+    fontWeight: 'bold',
   },
 });
 

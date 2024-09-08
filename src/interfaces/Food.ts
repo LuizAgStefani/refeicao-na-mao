@@ -1,5 +1,6 @@
 export interface Food {
+  key: string;
   name: string;
   quantity: number;
-  unity: string;
+  measurementUnit: string;
 }

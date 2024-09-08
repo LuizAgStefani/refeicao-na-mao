@@ -1,5 +1,5 @@
 import {View} from 'react-native';
-import {SegmentedButtons} from 'react-native-paper';
+import {Button, SegmentedButtons} from 'react-native-paper';
 import styles from './style';
 
 interface Props {
@@ -27,7 +27,6 @@ export default function CategoryButtons(props: Props) {
             label: 'Proteína',
             icon: 'food-drumstick',
             checkedColor: '#f00',
-            uncheckedColor: '#cfcfcf',
             disabled: props.disabled,
           },
         ]}
