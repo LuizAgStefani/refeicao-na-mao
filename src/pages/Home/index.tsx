@@ -7,11 +7,16 @@ import {getDatabase, ref, child, get} from 'firebase/database';
 import Loading from '../../components/Loading';
 import {Button, Dialog, FAB, Icon, Portal, TextInput} from 'react-native-paper';
 import Toast from 'react-native-toast-message';
+import {useNavigation} from '@react-navigation/native';
+import {RootStackParamList} from '../../interfaces/RootStackParamList';
+import {StackNavigationProp} from '@react-navigation/stack';
 
 interface DialogItemFoodProps {
   food: Food;
   setFood: (food: Food) => void;
 }
+
+type HomeScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Home'>;
 
 export default function Home() {
   const [firstFoodDialog, setFirstFoodDialogVisible] = useState(false);
@@ -25,6 +30,8 @@ export default function Home() {
   const [secondFood, setSecondFood] = useState<Food>();
   const [notFullfilFoodQuantity, setNotFullfilFoodQuantity] = useState('');
   const [subResult, setSubResult] = useState('');
+
+  const navigation = useNavigation<HomeScreenNavigationProp>();
 
   const handleDismissFoodDialog = useCallback(() => {
     setFirstFoodDialogVisible(false);
@@ -175,7 +182,7 @@ export default function Home() {
 
   const [state, setState] = useState({open: false});
 
-  const onStateChange = ({open}) => setState({open});
+  const onStateChange = ({open}: {open: boolean}) => setState({open});
 
   const {open} = state;
 
@@ -189,12 +196,16 @@ export default function Home() {
           visible
           icon={open ? 'arrow-u-left-top' : 'menu'}
           color="#FFF"
-          fabStyle={{backgroundColor: '#FC6767'}}
+          fabStyle={{
+            backgroundColor: '#FC6767',
+            borderWidth: 1,
+            borderColor: '#b90000',
+          }}
           actions={[
             {
               icon: 'food-variant',
               label: 'Gerenciar Alimentos',
-              onPress: () => {},
+              onPress: () => navigation.navigate('Registros'),
               style: {backgroundColor: '#FC6767'},
               color: '#fff',
             },
@@ -278,7 +289,7 @@ export default function Home() {
                     mode="elevated"
                     buttonColor="#FC6767"
                     textColor="#FFF"
-                    onPress={() => {}}
+                    onPress={() => navigation.navigate('Registros')}
                     style={{marginBottom: 5}}>
                     Gerenciar Alimentos
                   </Button>
