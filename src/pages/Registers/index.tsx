@@ -10,6 +10,7 @@ import {child, get, getDatabase, ref} from 'firebase/database';
 import {Food} from '../../interfaces/Food';
 import Loading from '../../components/Loading';
 import CardFoodRegisters from '../../components/CardFoodRegisters';
+import {fetchFoods} from '../../utils/functions';
 
 type RegistersScreenNavigationProp = StackNavigationProp<
   RootStackParamList,
@@ -24,34 +25,13 @@ export default function Registers() {
   const [foods, setFoods] = useState<Food[]>([]);
 
   useEffect(() => {
-    setLoading(true);
-    setFoods([]);
-    const dbRef = ref(getDatabase());
-    get(child(dbRef, `${category}/`))
-      .then(snapshot => {
-        if (snapshot.exists()) {
-          const foodsObtained: Food[] = [];
-          snapshot.forEach(val => {
-            const food: Food = {
-              key: val.key,
-              name: val.val().name,
-              measurementUnit: val.val().measurementUnit,
-              quantity: val.val().quantity,
-            };
-
-            foodsObtained.push(food);
-          });
-          setFoods(foodsObtained);
-        }
-      })
-      .catch(error => {
-        console.error(error);
-      })
-      .finally(() => setLoading(false));
+    if (category) {
+      fetchFoods(category, setFoods, setLoading);
+    }
   }, [category]);
 
   const renderItem = ({item}: {item: Food}) => (
-    <CardFoodRegisters food={item} category={category} />
+    <CardFoodRegisters food={item} category={category} setFoods={setFoods} />
   );
 
   return (

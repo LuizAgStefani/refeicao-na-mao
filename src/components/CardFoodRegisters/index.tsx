@@ -1,13 +1,15 @@
-import {View, Text} from 'react-native';
-import React from 'react';
+import {View, Text, Alert} from 'react-native';
+import React, {useCallback} from 'react';
 import {List} from 'react-native-paper';
 import {Food} from '../../interfaces/Food';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 import styles from './styles';
+import {deleteFood} from '../../utils/functions';
 
 type CardFoodRegistersProps = {
   food: Food;
   category: string;
+  setFoods: React.Dispatch<React.SetStateAction<Food[]>>;
 };
 
 const getIconByCategory = (category: string) => {
@@ -28,8 +30,27 @@ const getIconByCategory = (category: string) => {
 export default function CardFoodRegisters({
   category,
   food,
+  setFoods,
 }: CardFoodRegistersProps) {
   const icon = getIconByCategory(category);
+
+  const handleRemoveFood = useCallback(() => {
+    Alert.alert(
+      'Confirmar exclusão',
+      `Você quer realmente excluir o(a) ${food.name}?`,
+      [
+        {text: 'Cancelar', onPress: () => false},
+        {
+          text: 'Confirmar',
+          onPress: async () => {
+            await deleteFood(category, food);
+
+            setFoods(prevFoods => prevFoods.filter(f => f.key !== food.key));
+          },
+        },
+      ],
+    );
+  }, []);
 
   return (
     <List.Item
@@ -46,7 +67,7 @@ export default function CardFoodRegisters({
           <TouchableOpacity onPress={() => {}} {...props}>
             <List.Icon icon="lead-pencil" color="#b40000" />
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => {}} {...props}>
+          <TouchableOpacity onPress={handleRemoveFood} {...props}>
             <List.Icon icon="trash-can" color="#b40000" />
           </TouchableOpacity>
         </View>
