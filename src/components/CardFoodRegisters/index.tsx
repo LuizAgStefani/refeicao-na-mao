@@ -5,6 +5,9 @@ import {Food} from '../../interfaces/Food';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 import styles from './styles';
 import {deleteFood} from '../../utils/functions';
+import {useNavigation} from '@react-navigation/native';
+import {RootStackParamList} from '../../interfaces/RootStackParamList';
+import {StackNavigationProp} from '@react-navigation/stack';
 
 type CardFoodRegistersProps = {
   food: Food;
@@ -27,12 +30,19 @@ const getIconByCategory = (category: string) => {
   }
 };
 
+type CreateScreenNavigationProp = StackNavigationProp<
+  RootStackParamList,
+  'Editar'
+>;
+
 export default function CardFoodRegisters({
   category,
   food,
   setFoods,
 }: CardFoodRegistersProps) {
   const icon = getIconByCategory(category);
+
+  const navigation = useNavigation<CreateScreenNavigationProp>();
 
   const handleRemoveFood = useCallback(() => {
     Alert.alert(
@@ -64,7 +74,11 @@ export default function CardFoodRegisters({
       left={props => <List.Icon {...props} icon={icon} color="#b40000" />}
       right={props => (
         <View style={styles.listItemRight}>
-          <TouchableOpacity onPress={() => {}} {...props}>
+          <TouchableOpacity
+            onPress={() =>
+              navigation.navigate('Editar', {category: category, key: food.key})
+            }
+            {...props}>
             <List.Icon icon="lead-pencil" color="#b40000" />
           </TouchableOpacity>
           <TouchableOpacity onPress={handleRemoveFood} {...props}>

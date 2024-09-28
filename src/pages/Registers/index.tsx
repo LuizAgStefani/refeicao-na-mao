@@ -1,8 +1,8 @@
-import {useState, useEffect} from 'react';
+import {useState, useEffect, useCallback} from 'react';
 import {View, Text, FlatList} from 'react-native';
 import styles from './styles';
 import {Button, Icon, IconButton} from 'react-native-paper';
-import {useNavigation} from '@react-navigation/native';
+import {useNavigation, useFocusEffect} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {RootStackParamList} from '../../interfaces/RootStackParamList';
 import CategoryButtons from '../../components/CategoryButtons';
@@ -24,11 +24,13 @@ export default function Registers() {
   const [loading, setLoading] = useState(false);
   const [foods, setFoods] = useState<Food[]>([]);
 
-  useEffect(() => {
-    if (category) {
-      fetchFoods(category, setFoods, setLoading);
-    }
-  }, [category]);
+  useFocusEffect(
+    useCallback(() => {
+      if (category) {
+        fetchFoods(category, setFoods, setLoading);
+      }
+    }, [category]),
+  );
 
   const renderItem = ({item}: {item: Food}) => (
     <CardFoodRegisters food={item} category={category} setFoods={setFoods} />

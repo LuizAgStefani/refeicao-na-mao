@@ -5,7 +5,7 @@ import {
   Keyboard,
   ToastAndroid,
 } from 'react-native';
-import React, {useState, useMemo} from 'react';
+import React, {useState, useMemo, useEffect, useCallback} from 'react';
 import {
   ActivityIndicator,
   Button,
@@ -22,7 +22,12 @@ import styles from './styles';
 import {StackNavigationProp} from '@react-navigation/stack';
 import CategoryButtons from '../../components/CategoryButtons';
 import {Food} from '../../interfaces/Food';
-import {addFood} from '../../utils/functions';
+import {
+  addFood,
+  deleteFood,
+  editFood,
+  fetchFoodByKey,
+} from '../../utils/functions';
 
 type CreateEditScreenProps =
   | RootRouteProps<'Cadastrar'>
@@ -36,6 +41,8 @@ export default function Create() {
   const route = useRoute<CreateEditScreenProps>();
   const isEditMode = useMemo(() => route.name === 'Editar', [route]);
   const {key, category} = route.params || {};
+  const [originalName, setOriginalName] = useState('');
+  const [isFirstRender, setIsFirstRender] = useState(true);
   const [loading, setLoading] = useState(false);
   const navigation = useNavigation<CreateScreenNavigationProp>();
 
@@ -47,6 +54,33 @@ export default function Create() {
     quantity: 0,
   });
 
+  useEffect(() => {
+    if (isFirstRender) {
+      void getFoodByKey();
+    }
+
+    return () => {
+      setIsFirstRender(false);
+    };
+  }, [category, key, isFirstRender]);
+
+  const getFoodByKey = useCallback(async () => {
+    if (category && key) {
+      setLoading(true);
+      const foodFoundByKey = await fetchFoodByKey(category, key);
+      if (foodFoundByKey !== null) {
+        setFood({
+          name: foodFoundByKey.name,
+          measurementUnit: foodFoundByKey.measurementUnit,
+          quantity: foodFoundByKey.quantity,
+        });
+        setOriginalName(foodFoundByKey.name);
+        setCategorySelected(foodFoundByKey.category);
+      }
+      setLoading(false);
+    }
+  }, [category, key]);
+
   const handleSelectMeasurementUnit = (value: string) => {
     Keyboard.dismiss();
     setFood(prevFood => ({
@@ -56,7 +90,6 @@ export default function Create() {
   };
 
   const handleAddFood = async () => {
-    console.log(food);
     if (food.name === '') {
       ToastAndroid.showWithGravityAndOffset(
         `Você deve informar um nome válido para seu alimento`,
@@ -90,39 +123,15 @@ export default function Create() {
       return;
     }
 
-    //   if (id !== '') {
-    //     firebase
-    //       .database()
-    //       .ref(categoria)
-    //       .child(id)
-    //       .update({
-    //         nome: nome,
-    //         quantidade: +quantidade,
-    //         unidadeMedida: unidadeMedida,
-    //       })
-    //       .then(() => {
-    //         navigation.goBack();
-    //         ToastAndroid.showWithGravityAndOffset(
-    //           `${nome} editado com sucesso`,
-    //           ToastAndroid.SHORT,
-    //           ToastAndroid.BOTTOM,
-    //           25,
-    //           50,
-    //         );
-    //       })
-    //       .catch(() => {
-    //         ToastAndroid.showWithGravityAndOffset(
-    //           'Houve um erro ao editar o Alimento',
-    //           ToastAndroid.SHORT,
-    //           ToastAndroid.BOTTOM,
-    //           25,
-    //           50,
-    //         );
-    //       });
-    //     return;
-    //   }
+    if (isEditMode && key && category) {
+      if (categorySelected !== category) {
+        deleteFood(category, {key}, true);
+      }
+      await editFood(categorySelected, key, food);
+    } else {
+      await addFood(categorySelected, food);
+    }
 
-    await addFood(categorySelected, food);
     navigation.goBack();
   };
 
@@ -148,8 +157,7 @@ export default function Create() {
           </View>
           <View style={styles.formArea}>
             <Text style={styles.title}>
-              {/* {id !== '' ? `Editar ${nomeOriginal}` : 'Cadastrar Alimento'} */}
-              {'Cadastrar Alimento'}
+              {isEditMode ? `Editar ${originalName}` : 'Cadastrar Alimento'}
             </Text>
             <View style={styles.inputsArea}>
               <View style={{width: '100%'}}>
@@ -222,8 +230,7 @@ export default function Create() {
                 textColor="#FFF"
                 style={{justifyContent: 'center', height: 40}}
                 onPress={handleAddFood}>
-                {/* {id !== '' ? 'Editar' : 'Cadastrar'} */}
-                {'Cadastrar'}
+                {isEditMode ? 'Editar' : 'Cadastrar'}
               </Button>
             </View>
           </View>
