@@ -1,15 +1,32 @@
 import {useCallback, useEffect, useState} from 'react';
-import {Text, View, TouchableOpacity, Animated, FlatList} from 'react-native';
+import {
+  Text,
+  View,
+  TouchableOpacity,
+  Animated,
+  FlatList,
+  ToastAndroid,
+} from 'react-native';
 import {Food} from '../../interfaces/Food';
 import CategoryButtons from '../../components/CategoryButtons';
 import styles from './styles';
 import {getDatabase, ref, child, get} from 'firebase/database';
 import Loading from '../../components/Loading';
-import {Button, Dialog, FAB, Icon, Portal, TextInput} from 'react-native-paper';
+import {
+  Button,
+  Dialog,
+  FAB,
+  Icon,
+  IconButton,
+  Portal,
+  TextInput,
+  Text as TextPaper,
+} from 'react-native-paper';
 import Toast from 'react-native-toast-message';
-import {useNavigation} from '@react-navigation/native';
+import {useNavigation, CommonActions} from '@react-navigation/native';
 import {RootStackParamList} from '../../interfaces/RootStackParamList';
 import {StackNavigationProp} from '@react-navigation/stack';
+import {logout} from '../../utils/functions';
 
 interface DialogItemFoodProps {
   food: Food;
@@ -30,8 +47,10 @@ export default function Home() {
   const [secondFood, setSecondFood] = useState<Food>();
   const [notFullfilFoodQuantity, setNotFullfilFoodQuantity] = useState('');
   const [subResult, setSubResult] = useState('');
+  const [logoutDialogVisible, setLogoutDialogVisible] = useState(false);
 
   const navigation = useNavigation<HomeScreenNavigationProp>();
+  const navigationReset = useNavigation();
 
   const handleDismissFoodDialog = useCallback(() => {
     setFirstFoodDialogVisible(false);
@@ -186,11 +205,35 @@ export default function Home() {
 
   const {open} = state;
 
+  const handleLogout = useCallback(async () => {
+    try {
+      const logoutSuccess = await logout();
+
+      if (logoutSuccess) {
+        setLogoutDialogVisible(false);
+        navigationReset.dispatch(
+          CommonActions.reset({
+            index: 0,
+            routes: [{name: 'Login'}],
+          }),
+        );
+      }
+    } catch (e) {
+      ToastAndroid.showWithGravityAndOffset(
+        `Ocorreu um erro ao fazer o logout, tente novamente!`,
+        ToastAndroid.SHORT,
+        ToastAndroid.BOTTOM,
+        25,
+        50,
+      );
+    }
+  }, []);
+
   return (
     <View style={styles.container}>
       <Portal>
         <FAB.Group
-          backdropColor="rgba(255, 255, 255, 0.5)"
+          backdropColor="rgba(255, 255, 255, 0.7)"
           rippleColor="#f00"
           open={open}
           visible
@@ -203,6 +246,13 @@ export default function Home() {
           }}
           actions={[
             {
+              icon: 'door-open',
+              label: 'Sair do Sistema',
+              onPress: () => setLogoutDialogVisible(true),
+              style: {backgroundColor: '#FC6767'},
+              color: '#fff',
+            },
+            {
               icon: 'food-variant',
               label: 'Gerenciar Alimentos',
               onPress: () => navigation.navigate('Registros'),
@@ -212,6 +262,20 @@ export default function Home() {
           ]}
           onStateChange={onStateChange}
         />
+        <Dialog
+          visible={logoutDialogVisible}
+          onDismiss={() => setLogoutDialogVisible(false)}>
+          <Dialog.Title>Sair</Dialog.Title>
+          <Dialog.Content>
+            <TextPaper variant="bodyMedium">
+              Você tem certeza que quer sair do sistema?
+            </TextPaper>
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Button onPress={() => setLogoutDialogVisible(false)}>Não</Button>
+            <Button onPress={handleLogout}>Sim</Button>
+          </Dialog.Actions>
+        </Dialog>
         <Dialog
           style={{backgroundColor: '#FC6767'}}
           onDismiss={handleDismissFoodDialog}
@@ -253,6 +317,20 @@ export default function Home() {
           </Dialog.ScrollArea>
         </Dialog>
       </Portal>
+      {/* <View
+        style={{
+          position: 'absolute',
+          alignSelf: 'flex-end',
+          paddingRight: 25,
+          paddingTop: 10,
+        }}>
+        <IconButton
+          icon="door-open"
+          size={35}
+          onPress={() => navigation.goBack()}
+          iconColor="#da0606"
+        />
+      </View> */}
       <Animated.Image
         style={{
           width: marginTopImage.interpolate({

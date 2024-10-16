@@ -69,6 +69,9 @@ export default function CardFoodRegisters({
         <Text style={styles.listItemDescription}>
           {food.quantity}
           {food.measurementUnit}
+          {food.calories && food.calories !== 0
+            ? ` - ${food.calories} cal.`
+            : ``}
         </Text>
       }
       left={props => <List.Icon {...props} icon={icon} color="#b40000" />}

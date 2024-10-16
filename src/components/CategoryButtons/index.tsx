@@ -1,4 +1,4 @@
-import {View} from 'react-native';
+import {View, StyleProp, ViewStyle} from 'react-native';
 import {Button, SegmentedButtons} from 'react-native-paper';
 import styles from './style';
 
@@ -6,11 +6,12 @@ interface Props {
   category: string;
   setCategory: React.Dispatch<React.SetStateAction<string>>;
   disabled?: boolean;
+  style?: StyleProp<ViewStyle>;
 }
 
 export default function CategoryButtons(props: Props) {
   return (
-    <View style={styles.categoryArea}>
+    <View style={[styles.categoryArea, props.style ?? {}]}>
       <SegmentedButtons
         value={props.category}
         onValueChange={props.setCategory}

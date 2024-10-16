@@ -56,7 +56,11 @@ export default function Registers() {
       </View>
       <Text style={styles.title}>Alimentos Cadastrados</Text>
       <View style={styles.contentArea}>
-        <CategoryButtons category={category} setCategory={setCategory} />
+        <CategoryButtons
+          style={{marginVertical: 20}}
+          category={category}
+          setCategory={setCategory}
+        />
         {loading ? (
           <Loading />
         ) : (
