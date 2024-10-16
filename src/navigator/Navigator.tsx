@@ -4,6 +4,7 @@ import Home from '../pages/Home';
 import Registers from '../pages/Registers';
 import Create from '../pages/Create';
 import Login from '../pages/Login';
+import CreateUser from '../pages/CreateUser';
 
 const Stack = createStackNavigator<RootStackParamList>();
 
@@ -25,6 +26,7 @@ export default function Navigator({signedIn}: NavigatorProps) {
       }}
       initialRouteName={getInitialRoute(signedIn)}>
       <Stack.Screen name="Login" component={Login} />
+      <Stack.Screen name="CreateUser" component={CreateUser} />
       <Stack.Screen name="Home" component={Home} />
       <Stack.Screen name="Registros" component={Registers} />
       <Stack.Screen name="Cadastrar" component={Create} />

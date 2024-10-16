@@ -26,7 +26,7 @@ import Toast from 'react-native-toast-message';
 import {useNavigation, CommonActions} from '@react-navigation/native';
 import {RootStackParamList} from '../../interfaces/RootStackParamList';
 import {StackNavigationProp} from '@react-navigation/stack';
-import {logout} from '../../utils/functions';
+import {getUserIdFromAsyncStorage, logout} from '../../utils/functions';
 
 interface DialogItemFoodProps {
   food: Food;
@@ -80,38 +80,42 @@ export default function Home() {
     setFoods([]);
   }, []);
 
-  const getData = useCallback(() => {
+  const getData = useCallback(async () => {
     setLoading(true);
     resetScreen();
     const dbRef = ref(getDatabase());
-    get(child(dbRef, `${category}/`))
-      .then(snapshot => {
-        if (snapshot.exists()) {
-          const orderedFoods: Food[] = [];
+    const userId = await getUserIdFromAsyncStorage();
 
-          snapshot.forEach(val => {
-            const food: Food = {
-              key: val.key,
-              name: val.val().name,
-              measurementUnit: val.val().measurementUnit,
-              quantity: val.val().quantity,
-            };
-            orderedFoods.push(food);
-          });
+    if (userId !== undefined) {
+      get(child(dbRef, `${userId}/${category}/`))
+        .then(snapshot => {
+          if (snapshot.exists()) {
+            const orderedFoods: Food[] = [];
 
-          orderedFoods.sort((a: Food, b: Food) =>
-            a.name
-              .toLocaleLowerCase()
-              .localeCompare(b.name.toLocaleLowerCase()),
-          );
+            snapshot.forEach(val => {
+              const food: Food = {
+                key: val.key,
+                name: val.val().name,
+                measurementUnit: val.val().measurementUnit,
+                quantity: val.val().quantity,
+              };
+              orderedFoods.push(food);
+            });
 
-          setFoods(orderedFoods);
-        }
-      })
-      .catch(error => {
-        console.error(error);
-      })
-      .finally(() => setLoading(false));
+            orderedFoods.sort((a: Food, b: Food) =>
+              a.name
+                .toLocaleLowerCase()
+                .localeCompare(b.name.toLocaleLowerCase()),
+            );
+
+            setFoods(orderedFoods);
+          }
+        })
+        .catch(error => {
+          console.error(error);
+        })
+        .finally(() => setLoading(false));
+    }
   }, [category]);
 
   useEffect(() => {

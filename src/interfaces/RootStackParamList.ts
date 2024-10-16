@@ -6,6 +6,7 @@ export type RootStackParamList = {
   Registros: undefined;
   Cadastrar: undefined;
   Editar: {key: string; category: string};
+  CreateUser: undefined;
 };
 
 export type RootRouteProps<RouteName extends keyof RootStackParamList> =

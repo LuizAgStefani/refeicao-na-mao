@@ -10,7 +10,11 @@ import {
   update,
 } from 'firebase/database';
 import {Food} from '../interfaces/Food';
-import {signInWithEmailAndPassword, signOut} from 'firebase/auth';
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut,
+} from 'firebase/auth';
 import {auth} from '../config/firebaseConnection';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {KEY_USER_ID} from './asyncStorageKeys';
@@ -28,21 +32,27 @@ export const fetchFoods = async (
 
   try {
     const dbRef = ref(getDatabase());
-    const snapshot = await get(child(dbRef, `${category}/`));
+    const userId = await getUserIdFromAsyncStorage();
 
-    if (snapshot.exists()) {
-      const foodsObtained: Food[] = [];
-      snapshot.forEach(val => {
-        const food: Food = {
-          key: val.key,
-          name: val.val().name,
-          measurementUnit: val.val().measurementUnit,
-          quantity: val.val().quantity,
-          calories: val.val().calories,
-        };
-        foodsObtained.push(food);
-      });
-      setFoods(foodsObtained);
+    if (userId !== undefined) {
+      const snapshot = await get(child(dbRef, `${userId}/${category}/`));
+
+      if (snapshot.exists()) {
+        const foodsObtained: Food[] = [];
+        snapshot.forEach(val => {
+          const food: Food = {
+            key: val.key,
+            name: val.val().name,
+            measurementUnit: val.val().measurementUnit,
+            quantity: val.val().quantity,
+            calories: val.val().calories,
+          };
+          foodsObtained.push(food);
+        });
+        setFoods(foodsObtained);
+      } else {
+        setFoods([]);
+      }
     } else {
       setFoods([]);
     }
@@ -90,13 +100,25 @@ export const addFood = async (
 ) => {
   try {
     const db = getDatabase();
-    const foodsRef = ref(db, `${category}/`);
+    const userId = await getUserIdFromAsyncStorage();
 
-    await push(foodsRef, newFood);
+    if (userId !== undefined) {
+      const foodsRef = ref(db, `${userId}/${category}/`);
 
-    if (!shouldHideMessage) {
+      await push(foodsRef, newFood);
+
+      if (!shouldHideMessage) {
+        ToastAndroid.showWithGravityAndOffset(
+          'Alimento cadastrado com sucesso',
+          ToastAndroid.SHORT,
+          ToastAndroid.BOTTOM,
+          25,
+          50,
+        );
+      }
+    } else {
       ToastAndroid.showWithGravityAndOffset(
-        'Alimento cadastrado com sucesso',
+        'Houve um erro ao cadastrar o alimento',
         ToastAndroid.SHORT,
         ToastAndroid.BOTTOM,
         25,
@@ -117,15 +139,19 @@ export const addFood = async (
 export const fetchFoodByKey = async (category: string, foodKey: string) => {
   try {
     const db = getDatabase();
-    const foodRef = ref(db, `${category}/${foodKey}`);
+    const userId = await getUserIdFromAsyncStorage();
 
-    const snapshot = await get(foodRef);
+    if (userId !== undefined) {
+      const foodRef = ref(db, `${userId}/${category}/${foodKey}`);
 
-    if (snapshot.exists()) {
-      const food = snapshot.val();
-      return {...food, category};
-    } else {
-      return null;
+      const snapshot = await get(foodRef);
+
+      if (snapshot.exists()) {
+        const food = snapshot.val();
+        return {...food, category};
+      } else {
+        return null;
+      }
     }
   } catch (error) {
     return null;
@@ -139,17 +165,21 @@ export const editFood = async (
 ) => {
   try {
     const db = getDatabase();
-    const foodRef = ref(db, `${category}/${foodKey}`);
+    const userId = await getUserIdFromAsyncStorage();
 
-    await update(foodRef, newFood);
+    if (userId !== undefined) {
+      const foodRef = ref(db, `${userId}/${category}/${foodKey}`);
 
-    ToastAndroid.showWithGravityAndOffset(
-      `${newFood.name} cadastrado(a) com sucesso`,
-      ToastAndroid.SHORT,
-      ToastAndroid.BOTTOM,
-      25,
-      50,
-    );
+      await update(foodRef, newFood);
+
+      ToastAndroid.showWithGravityAndOffset(
+        `${newFood.name} cadastrado(a) com sucesso`,
+        ToastAndroid.SHORT,
+        ToastAndroid.BOTTOM,
+        25,
+        50,
+      );
+    }
   } catch (error) {
     ToastAndroid.showWithGravityAndOffset(
       'Houve um erro ao editar o alimento',
@@ -165,7 +195,9 @@ export const login = async (
   email: string,
   password: string,
   setLoading: Function,
-  navigation: StackNavigationProp<RootStackParamList, 'Home'>,
+  navigation:
+    | StackNavigationProp<RootStackParamList, 'Home'>
+    | StackNavigationProp<RootStackParamList, 'CreateUser'>,
 ) => {
   setLoading(true);
   signInWithEmailAndPassword(auth, email, password)
@@ -214,5 +246,48 @@ export const logout = async (): Promise<boolean> => {
   } catch (error) {
     console.error('Erro ao fazer logout:', error);
     return false;
+  }
+};
+
+export const registerUser = async (
+  email: string,
+  password: string,
+): Promise<boolean> => {
+  try {
+    const userCredential = await createUserWithEmailAndPassword(
+      auth,
+      email,
+      password,
+    );
+
+    const user = userCredential.user;
+
+    try {
+      await AsyncStorage.setItem(KEY_USER_ID, user.uid);
+      return true;
+    } catch (_) {
+      ToastAndroid.showWithGravityAndOffset(
+        `Houve um erro ao fazer o login, tente novamente!`,
+        ToastAndroid.SHORT,
+        ToastAndroid.BOTTOM,
+        25,
+        50,
+      );
+      return false;
+    }
+  } catch (error: any) {
+    return false;
+  }
+};
+
+export const getUserIdFromAsyncStorage = async () => {
+  try {
+    const value = await AsyncStorage.getItem(KEY_USER_ID);
+    console.log(value);
+    if (value !== null) {
+      return value;
+    }
+  } catch (e) {
+    return undefined;
   }
 };
