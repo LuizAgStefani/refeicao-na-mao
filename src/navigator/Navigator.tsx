@@ -1,19 +1,30 @@
 import {createStackNavigator} from '@react-navigation/stack';
 import {RootStackParamList} from '../interfaces/RootStackParamList';
 import Home from '../pages/Home';
-import {Text} from 'react-native';
 import Registers from '../pages/Registers';
 import Create from '../pages/Create';
+import Login from '../pages/Login';
 
 const Stack = createStackNavigator<RootStackParamList>();
 
-export default function Navigator() {
+interface NavigatorProps {
+  signedIn: boolean;
+}
+
+function getInitialRoute(signedIn: boolean) {
+  if (!signedIn) return 'Login';
+
+  return 'Home';
+}
+
+export default function Navigator({signedIn}: NavigatorProps) {
   return (
     <Stack.Navigator
       screenOptions={{
         headerShown: false,
       }}
-      initialRouteName="Home">
+      initialRouteName={getInitialRoute(signedIn)}>
+      <Stack.Screen name="Login" component={Login} />
       <Stack.Screen name="Home" component={Home} />
       <Stack.Screen name="Registros" component={Registers} />
       <Stack.Screen name="Cadastrar" component={Create} />

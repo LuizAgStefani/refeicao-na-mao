@@ -10,6 +10,13 @@ import {
   update,
 } from 'firebase/database';
 import {Food} from '../interfaces/Food';
+import {signInWithEmailAndPassword, signOut} from 'firebase/auth';
+import {auth} from '../config/firebaseConnection';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {KEY_USER_ID} from './asyncStorageKeys';
+import {StackNavigationProp} from '@react-navigation/stack';
+import {RootStackParamList} from '../interfaces/RootStackParamList';
+import {useNavigation, CommonActions} from '@react-navigation/native';
 
 export const fetchFoods = async (
   category: string,
@@ -31,6 +38,7 @@ export const fetchFoods = async (
           name: val.val().name,
           measurementUnit: val.val().measurementUnit,
           quantity: val.val().quantity,
+          calories: val.val().calories,
         };
         foodsObtained.push(food);
       });
@@ -150,5 +158,61 @@ export const editFood = async (
       25,
       50,
     );
+  }
+};
+
+export const login = async (
+  email: string,
+  password: string,
+  setLoading: Function,
+  navigation: StackNavigationProp<RootStackParamList, 'Home'>,
+) => {
+  setLoading(true);
+  signInWithEmailAndPassword(auth, email, password)
+    .then(async userCredential => {
+      const user = userCredential.user;
+      try {
+        await AsyncStorage.setItem(KEY_USER_ID, user.uid);
+        navigation.replace('Home');
+      } catch (_) {
+        ToastAndroid.showWithGravityAndOffset(
+          `Houve um erro ao fazer o login, tente novamente!`,
+          ToastAndroid.SHORT,
+          ToastAndroid.BOTTOM,
+          25,
+          50,
+        );
+      }
+    })
+    .catch(error => {
+      if (error.code === 'auth/invalid-credential') {
+        ToastAndroid.showWithGravityAndOffset(
+          `Usuário ou senha inválidos, altere os dados e tente novamente!`,
+          ToastAndroid.SHORT,
+          ToastAndroid.BOTTOM,
+          25,
+          50,
+        );
+      } else {
+        ToastAndroid.showWithGravityAndOffset(
+          `Ocorreu um erro ao fazer o login, tente novamente!`,
+          ToastAndroid.SHORT,
+          ToastAndroid.BOTTOM,
+          25,
+          50,
+        );
+      }
+    })
+    .finally(() => setLoading(false));
+};
+
+export const logout = async (): Promise<boolean> => {
+  try {
+    await signOut(auth);
+    await AsyncStorage.clear();
+    return true;
+  } catch (error) {
+    console.error('Erro ao fazer logout:', error);
+    return false;
   }
 };

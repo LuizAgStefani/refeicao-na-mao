@@ -52,6 +52,7 @@ export default function Create() {
     name: '',
     measurementUnit: '',
     quantity: 0,
+    calories: 0,
   });
 
   useEffect(() => {
@@ -73,6 +74,7 @@ export default function Create() {
           name: foodFoundByKey.name,
           measurementUnit: foodFoundByKey.measurementUnit,
           quantity: foodFoundByKey.quantity,
+          calories: foodFoundByKey.calores ?? 0,
         });
         setOriginalName(foodFoundByKey.name);
         setCategorySelected(foodFoundByKey.category);
@@ -176,7 +178,7 @@ export default function Create() {
                     name: text,
                   }))
                 }
-                label="Nome"
+                label="Nome: *"
                 style={{backgroundColor: '#fa9a9a', marginTop: 10}}
                 outlineColor="#F00"
                 activeOutlineColor="#bc0000"
@@ -190,9 +192,25 @@ export default function Create() {
                     quantity: +text,
                   }))
                 }
-                label="Quantidade"
+                label="Quantidade: *"
                 keyboardType="numeric"
                 style={{backgroundColor: '#fa9a9a', marginVertical: 20}}
+                outlineColor="#F00"
+                activeOutlineColor="#bc0000"
+              />
+              <TextInput
+                mode="outlined"
+                value={food.calories !== 0 ? `${food.calories}` : ''}
+                onChangeText={text =>
+                  setFood(prevFood => ({
+                    ...prevFood,
+                    calories: +text,
+                  }))
+                }
+                maxLength={4}
+                label="Quantidade de calorias:"
+                keyboardType="numeric"
+                style={{backgroundColor: '#fa9a9a', marginBottom: 20}}
                 outlineColor="#F00"
                 activeOutlineColor="#bc0000"
               />
