@@ -21,3 +21,12 @@ O Refeição na Mão é um aplicativo mobile que facilita o planejamento e o con
    ```bash
    git clone https://github.com/LuizAgStefani/refeicao-na-mao.git
    ```
+2. **Instale as dependências:**
+   ```bash
+   cd refeicao-na-mao
+   npm install
+   ```
+3. **Inicie o servidor de desenvolvimento:**
+   ```bash
+   npx react-native start
+   ```
