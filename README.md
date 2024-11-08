@@ -30,6 +30,9 @@ O Refeição na Mão é um aplicativo mobile que facilita o planejamento e o con
    ```bash
    npx react-native start
    ```
+4. **Execute o aplicativo no emulador ou dispositivo:**
+   - **Emulador:** Siga as instruções do seu emulador para iniciar o aplicativo.
+   - **Dispositivo:** Utilize um cabo USB para conectar o dispositivo e execute o comando npx react-native run-android ou npx react-native run-ios.
 
 **Funcionalidades:**
 
