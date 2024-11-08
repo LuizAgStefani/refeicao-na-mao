@@ -30,3 +30,11 @@ O Refeição na Mão é um aplicativo mobile que facilita o planejamento e o con
    ```bash
    npx react-native start
    ```
+
+**Funcionalidades:**
+
+- **Cadastro de alimentos:** Adicione novos alimentos com suas respectivas informações nutricionais.
+- **Gerenciamento de categorias:** Organize os alimentos em categorias (proteínas, carboidratos, frutas e laticínios).
+- **Cálculo de calorias:** Calcule automaticamente as calorias de cada refeição e acompanhe seu consumo diário.
+- **Planejamento de refeições:** Crie um cardápio completo para toda a semana, definindo as refeições para cada dia.
+- **Interface intuitiva:** Navegue facilmente pelo aplicativo e encontre as informações que você precisa.
