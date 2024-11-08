@@ -5,10 +5,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fa9a9a',
     alignItems: 'center',
-  },
-  button: {
-    width: '100%',
-    marginVertical: 15,
+    paddingHorizontal: 10,
   },
 });
 

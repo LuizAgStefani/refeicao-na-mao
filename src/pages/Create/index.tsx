@@ -74,7 +74,7 @@ export default function Create() {
           name: foodFoundByKey.name,
           measurementUnit: foodFoundByKey.measurementUnit,
           quantity: foodFoundByKey.quantity,
-          calories: foodFoundByKey.calores ?? 0,
+          calories: foodFoundByKey.calories ?? 0,
         });
         setOriginalName(foodFoundByKey.name);
         setCategorySelected(foodFoundByKey.category);

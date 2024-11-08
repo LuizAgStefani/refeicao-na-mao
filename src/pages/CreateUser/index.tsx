@@ -7,23 +7,28 @@ import {
 } from 'react-native';
 import React, {useState, useMemo, useCallback} from 'react';
 import styles from './styles';
-import {Button, IconButton, TextInput} from 'react-native-paper';
-import {login} from '../../utils/functions';
+import {Button, Icon, IconButton, TextInput} from 'react-native-paper';
+import {login, registerUser} from '../../utils/functions';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {RootStackParamList} from '../../interfaces/RootStackParamList';
-import {useNavigation} from '@react-navigation/native';
+import {CommonActions, useNavigation} from '@react-navigation/native';
 
-type LoginScreenNavigationProp =
-  | StackNavigationProp<RootStackParamList, 'Home'>
-  | StackNavigationProp<RootStackParamList, 'CreateUser'>;
+type LoginScreenNavigationProp = StackNavigationProp<
+  RootStackParamList,
+  'Calculator'
+>;
 
-export default function Login() {
+export default function CreateUser() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [passwordConfirmation, setpasswordConfirmation] = useState('');
   const [hidedPassword, setHidedPassword] = useState(true);
+  const [hidedPasswordConfirmation, setHidedPasswordConfirmation] =
+    useState(true);
   const [loading, setLoading] = useState(false);
 
   const navigation = useNavigation<LoginScreenNavigationProp>();
+  const navigationReset = useNavigation();
 
   const isValidEmail = useMemo(() => {
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -36,7 +41,13 @@ export default function Login() {
     return regex.test(password);
   }, [password]);
 
-  const handleLogin = useCallback(() => {
+  const isValidPasswordConfirmation = useMemo(() => {
+    return passwordConfirmation === password;
+  }, [password, passwordConfirmation]);
+
+  const handleSubmitUser = useCallback(async () => {
+    setLoading(true);
+
     if (email === '' || !isValidEmail) {
       ToastAndroid.showWithGravityAndOffset(
         `Informe um email válido`,
@@ -46,7 +57,7 @@ export default function Login() {
         50,
       );
 
-      return;
+      return setLoading(false);
     }
 
     if (password === '' || !isValidPassword) {
@@ -58,14 +69,59 @@ export default function Login() {
         50,
       );
 
-      return;
+      return setLoading(false);
     }
 
-    login(email, password, setLoading, navigation);
-  }, [email, password]);
+    if (passwordConfirmation === '' || !isValidPasswordConfirmation) {
+      ToastAndroid.showWithGravityAndOffset(
+        `As senhas devem ser iguais`,
+        ToastAndroid.SHORT,
+        ToastAndroid.BOTTOM,
+        25,
+        50,
+      );
+
+      return setLoading(false);
+    }
+
+    if (await registerUser(email, password)) {
+      navigationReset.dispatch(
+        CommonActions.reset({
+          index: 0,
+          routes: [{name: 'Calculator'}],
+        }),
+      );
+
+      ToastAndroid.showWithGravityAndOffset(
+        `Cadastro efetuado com sucesso`,
+        ToastAndroid.SHORT,
+        ToastAndroid.BOTTOM,
+        25,
+        50,
+      );
+    } else {
+      ToastAndroid.showWithGravityAndOffset(
+        `Houve algum problema ao cadastrar o usuário, tente novamente!`,
+        ToastAndroid.SHORT,
+        ToastAndroid.BOTTOM,
+        25,
+        50,
+      );
+    }
+  }, [email, password, passwordConfirmation]);
 
   return (
     <View style={styles.container}>
+      <IconButton
+        icon="keyboard-backspace"
+        size={25}
+        onPress={() => navigation.goBack()}
+        style={{
+          position: 'absolute',
+          left: 0,
+          top: 0,
+        }}
+      />
       <Animated.Image
         style={{
           width: 120,
@@ -81,7 +137,7 @@ export default function Login() {
           width: '100%',
         }}
         behavior="height"
-        keyboardVerticalOffset={-30}>
+        keyboardVerticalOffset={-50}>
         <Text
           style={{
             fontWeight: 'bold',
@@ -96,7 +152,7 @@ export default function Login() {
             fontWeight: 'bold',
             fontSize: 15,
           }}>
-          Faça login com seu e-mail
+          Preencha os campos para fazer o cadastro
         </Text>
         <View
           style={{
@@ -153,31 +209,44 @@ export default function Login() {
               minúsculas, números e símbolos
             </Text>
           )}
-          <Button
-            disabled={loading}
-            icon="account-key"
-            mode="elevated"
-            buttonColor="#FC6767"
-            textColor="#FFF"
-            style={{justifyContent: 'center', height: 40}}
-            onPress={handleLogin}>
-            {loading ? 'Fazendo login ...' : 'Fazer login'}
-          </Button>
+          <TextInput
+            right={
+              <TextInput.Icon
+                onPress={() =>
+                  setHidedPasswordConfirmation(prevStatus => !prevStatus)
+                }
+                icon={hidedPasswordConfirmation ? 'eye' : 'eye-off'}
+              />
+            }
+            secureTextEntry={hidedPasswordConfirmation}
+            mode="outlined"
+            value={passwordConfirmation}
+            onChangeText={text => setpasswordConfirmation(text)}
+            label="Confirmação de Senha: *"
+            style={{backgroundColor: '#fa9a9a', marginBottom: 10}}
+            outlineColor="#F00"
+            activeOutlineColor="#bc0000"
+          />
+          {!isValidPasswordConfirmation && passwordConfirmation !== '' && (
+            <Text
+              style={{
+                marginLeft: 10,
+                marginTop: 5,
+                color: '#d20000',
+                fontWeight: 'bold',
+              }}>
+              As senhas devem ser iguais
+            </Text>
+          )}
           <Button
             disabled={loading}
             icon="account-plus"
             mode="elevated"
             buttonColor="#FC6767"
             textColor="#FFF"
-            style={{
-              justifyContent: 'center',
-              height: 40,
-              width: '90%',
-              marginLeft: '5%',
-              marginTop: 20,
-            }}
-            onPress={() => navigation.navigate('CreateUser')}>
-            Cadastrar usuário
+            style={{justifyContent: 'center', height: 40}}
+            onPress={handleSubmitUser}>
+            {loading ? 'Cadastrando ...' : 'Cadastrar usuário'}
           </Button>
         </View>
       </KeyboardAvoidingView>

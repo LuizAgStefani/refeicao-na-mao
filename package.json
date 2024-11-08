@@ -1,6 +1,6 @@
 {
-  "name": "RefeicaoNaMao",
-  "version": "0.0.3",
+  "name": "refeicao-na-mao",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "android": "react-native run-android",

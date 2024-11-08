@@ -1,10 +1,10 @@
-import {View, Text, Alert} from 'react-native';
+import {View, Text, Alert, GestureResponderEvent} from 'react-native';
 import React, {useCallback} from 'react';
 import {List} from 'react-native-paper';
 import {Food} from '../../interfaces/Food';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 import styles from './styles';
-import {deleteFood} from '../../utils/functions';
+import {deleteFood, getIconByCategory} from '../../utils/functions';
 import {useNavigation} from '@react-navigation/native';
 import {RootStackParamList} from '../../interfaces/RootStackParamList';
 import {StackNavigationProp} from '@react-navigation/stack';
@@ -13,21 +13,9 @@ type CardFoodRegistersProps = {
   food: Food;
   category: string;
   setFoods: React.Dispatch<React.SetStateAction<Food[]>>;
-};
-
-const getIconByCategory = (category: string) => {
-  switch (category) {
-    case 'dairy':
-      return 'cow';
-    case 'protein':
-      return 'food-drumstick';
-    case 'carbohydrate':
-      return 'bread-slice';
-    case 'fruit':
-      return 'fruit-grapes';
-    default:
-      return '';
-  }
+  shouldHideActions?: boolean;
+  onPress?: (e: GestureResponderEvent) => void;
+  shouldHideQuantity?: boolean;
 };
 
 type CreateScreenNavigationProp = StackNavigationProp<
@@ -39,6 +27,9 @@ export default function CardFoodRegisters({
   category,
   food,
   setFoods,
+  shouldHideActions,
+  onPress,
+  shouldHideQuantity,
 }: CardFoodRegistersProps) {
   const icon = getIconByCategory(category);
 
@@ -64,31 +55,41 @@ export default function CardFoodRegisters({
 
   return (
     <List.Item
+      onPress={onPress ? onPress : () => {}}
       title={<Text style={styles.listItemTitle}>{food.name}</Text>}
       description={
-        <Text style={styles.listItemDescription}>
-          {food.quantity}
-          {food.measurementUnit}
-          {food.calories && food.calories !== 0
-            ? ` - ${food.calories} cal.`
-            : ``}
-        </Text>
+        !shouldHideQuantity ? (
+          <Text style={styles.listItemDescription}>
+            {food.quantity}
+            {food.measurementUnit}
+            {food.calories && food.calories !== 0
+              ? ` - ${food.calories} cal.`
+              : ``}
+          </Text>
+        ) : undefined
       }
       left={props => <List.Icon {...props} icon={icon} color="#b40000" />}
-      right={props => (
-        <View style={styles.listItemRight}>
-          <TouchableOpacity
-            onPress={() =>
-              navigation.navigate('Editar', {category: category, key: food.key})
-            }
-            {...props}>
-            <List.Icon icon="lead-pencil" color="#b40000" />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={handleRemoveFood} {...props}>
-            <List.Icon icon="trash-can" color="#b40000" />
-          </TouchableOpacity>
-        </View>
-      )}
+      right={
+        !shouldHideActions
+          ? props => (
+              <View style={styles.listItemRight}>
+                <TouchableOpacity
+                  onPress={() =>
+                    navigation.navigate('Editar', {
+                      category: category,
+                      key: food.key,
+                    })
+                  }
+                  {...props}>
+                  <List.Icon icon="lead-pencil" color="#b40000" />
+                </TouchableOpacity>
+                <TouchableOpacity onPress={handleRemoveFood} {...props}>
+                  <List.Icon icon="trash-can" color="#b40000" />
+                </TouchableOpacity>
+              </View>
+            )
+          : undefined
+      }
       style={styles.listItem}
     />
   );
