@@ -15,7 +15,7 @@ import {CommonActions, useNavigation} from '@react-navigation/native';
 
 type LoginScreenNavigationProp = StackNavigationProp<
   RootStackParamList,
-  'Home'
+  'Calculator'
 >;
 
 export default function CreateUser() {
@@ -88,7 +88,7 @@ export default function CreateUser() {
       navigationReset.dispatch(
         CommonActions.reset({
           index: 0,
-          routes: [{name: 'Home'}],
+          routes: [{name: 'Calculator'}],
         }),
       );
 

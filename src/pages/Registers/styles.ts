@@ -24,6 +24,7 @@ const styles = StyleSheet.create({
   },
   flatList: {
     marginTop: 10,
+    height: '40%',
   },
   listEmptyComponentView: {
     alignItems: 'center',

@@ -11,6 +11,7 @@ import {Food} from '../../interfaces/Food';
 import Loading from '../../components/Loading';
 import CardFoodRegisters from '../../components/CardFoodRegisters';
 import {fetchFoods} from '../../utils/functions';
+import HeaderImage from '../../components/HeaderImage';
 
 type RegistersScreenNavigationProp = StackNavigationProp<
   RootStackParamList,
@@ -54,7 +55,11 @@ export default function Registers() {
           Adicionar Alimento
         </Button>
       </View>
-      <Text style={styles.title}>Alimentos Cadastrados</Text>
+      <HeaderImage
+        shouldRemoveMarginTop
+        animated={false}
+        title="Gerenciar alimentos"
+      />
       <View style={styles.contentArea}>
         <CategoryButtons
           style={{marginVertical: 20}}
