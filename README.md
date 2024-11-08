@@ -41,3 +41,18 @@ O Refeição na Mão é um aplicativo mobile que facilita o planejamento e o con
 - **Cálculo de calorias:** Calcule automaticamente as calorias de cada refeição e acompanhe seu consumo diário.
 - **Planejamento de refeições:** Crie um cardápio completo para toda a semana, definindo as refeições para cada dia.
 - **Interface intuitiva:** Navegue facilmente pelo aplicativo e encontre as informações que você precisa.
+
+**Próximos Passos:**
+
+- **Funcionalidades adicionais:** Considerar a implementação de um banco de dados local para salvar os dados do usuário, integração com aplicativos de saúde e personalização do plano alimentar.
+- **Melhorias na interface:** Aprimorar o design da interface do usuário para torná-la mais atraente e fácil de usar.
+- **Testes:** Implementar testes unitários e de integração para garantir a qualidade do código.
+
+**Contribuições:**
+
+Sinta-se à vontade para contribuir com o projeto! Para isso, siga os seguintes passos:
+
+1.Fork este repositório.
+2.Crie um novo branch para sua feature.
+3.Faça as suas alterações.
+4.Crie um pull request.
